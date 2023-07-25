@@ -1,40 +1,48 @@
-name: CI/CD Pipeline  
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-
-  test:
-
-    env:
-      - DB_NAME: ${{ secrets.TEST_DB_NAME }} 
-      - DB_USER: ${{ secrets.TEST_DB_USER }}
-      - DB_PASS: ${{ secrets.TEST_DB_PASS }} 
+  build-and-test:
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out repository code
+        uses: actions/checkout@v2
 
-      - name: Run tests
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Test
         run: |
-          docker-compose -f docker-compose.yml up --exit-code-from user-service
-        env_file:
-          - ./.env
+          cd user-service
+          export DB_NAME=testdb
+          export DB_USER=testuser
+          export DB_PASS=testpass
+          docker-compose up --build --abort-on-container-exit
 
-  push:
-
-    needs: test
+  build-and-deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - uses: actions/checkout@v2
-        
-    - name: Login to Docker Hub
-      run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build images
-      run: |
-       docker build -t mydockerid/user-service:latest .  
-       docker build -f Dockerfile.db -t mydockerid/user-db:latest .
-             
-    - name: Push images
-     run: |
-       docker push mydockerid/user-service:latest  
-       docker push mydockerid/user-db:latest
+      - name: Build and push Docker image
+        run: |
+          cd user-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/open-chat-user-app:${{ github.sha }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/open-chat-user-app:${{ github.sha }}
