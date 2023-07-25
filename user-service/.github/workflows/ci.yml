@@ -1,0 +1,38 @@
+name: CI/CD Pipeline 
+
+env:
+  DB_NAME: ${{ secrets.TEST_DB_NAME }}
+  DB_USER: ${{ secrets.TEST_DB_USER }}
+  DB_PASS: ${{ secrets.TEST_DB_PASS }}
+
+jobs:
+
+  test:
+
+    services:
+      db:
+        image: my-postgres
+    
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Run tests
+      run: docker-compose up --exit-code-from app
+
+  push:
+
+    needs: test
+
+    steps:
+
+    - name: Login to Docker Hub
+      run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+    - name: Build images
+      run: docker-compose build
+
+    - name: Push images 
+      run: |
+        docker push ystimokk/open-chat-user-app:latest
+        docker push ystimokk/open-chat-user-pg:latest

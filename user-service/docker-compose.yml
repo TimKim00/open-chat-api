@@ -1,0 +1,17 @@
+services:
+
+  db:
+    build: 
+      context: .
+      dockerfile: Dockerfile.db
+  
+  app:
+    build:
+      context: .
+    environment:
+      DB_NAME: $DB_NAME
+      DB_USER: $DB_USER
+      DB_PASS: $DB_PASS 
+      DB_HOST: db
+    depends_on:
+      - db
