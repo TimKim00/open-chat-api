@@ -19,12 +19,14 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Set up .env.test
+        run: |
+          cd user-service
+          cp .env.test .env
+
       - name: Build and Test
         run: |
           cd user-service
-          export DB_NAME=testdb
-          export DB_USER=testuser
-          export DB_PASS=testpass
           docker-compose up --build --abort-on-container-exit
 
   build-and-deploy:

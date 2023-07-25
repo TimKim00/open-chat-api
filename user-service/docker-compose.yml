@@ -1,9 +1,16 @@
-services:
+version: '3.8'
 
+services:
   db:
     build:
       context: .
       dockerfile: Dockerfile.db
+    env_file: 
+      - .env
+    environment:
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASS
+      POSTGRES_DB: $DB_NAME 
 
   user-service:
     build: 
