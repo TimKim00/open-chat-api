@@ -2,12 +2,12 @@ services:
 
   db:
     build:
-      context: ./user-service
+      context: .
       dockerfile: Dockerfile.db
 
   user-service:
     build: 
-      context: ./user-service
+      context: .
     environment:
       DB_NAME: $DB_NAME 
       DB_USER: $DB_USER
