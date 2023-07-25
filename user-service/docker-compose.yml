@@ -8,17 +8,17 @@ services:
     env_file: 
       - .env
     environment:
-      POSTGRES_USER: $PG_USER
-      POSTGRES_PASSWORD: $PG_PASS
-      POSTGRES_DB: $PG_NAME 
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASS
+      POSTGRES_DB: $DB_NAME 
 
   user-service:
     build: 
       context: .
     environment:
-      PG_NAME: $PG_NAME 
-      PG_USER: $PG_USER
-      PG_PASS: $PG_PASS
-      PG_HOST: db
+      DB_NAME: $DB_NAME 
+      DB_USER: $DB_USER
+      DB_PASS: $DB_PASS
+      DB_HOST: db
     depends_on:
       - db
