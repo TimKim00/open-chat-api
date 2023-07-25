@@ -16,9 +16,11 @@ port: process.env.PG_PORT
 }
 
 if (process.env.NODE_ENV === 'test') {
-  config.user = process.env.DB_USER;
-  config.password = process.env.DB_PASS;
-  config.database = process.env.DB_NAME;
+  config = {
+    user : process.env.DB_USER,
+    password : process.env.DB_PASS,
+    database : process.env.DB_NAME
+    }
 } 
 
 module.exports = {
