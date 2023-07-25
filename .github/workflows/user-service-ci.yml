@@ -1,39 +1,40 @@
 name: CI/CD Pipeline  
 
-env:
-  DB_NAME: ${{ secrets.TEST_DB_NAME }}
-  DB_USER: ${{ secrets.TEST_DB_USER }}
-  DB_PASS: ${{ secrets.TEST_DB_PASS }}
-
 jobs:
 
   test:
 
-    services:
-      db:
-        image: my-postgres
-    
-    steps:
-    - uses: actions/checkout@v2
+    env:
+      - DB_NAME: ${{ secrets.TEST_DB_NAME }} 
+      - DB_USER: ${{ secrets.TEST_DB_USER }}
+      - DB_PASS: ${{ secrets.TEST_DB_PASS }} 
 
-    - name: Run tests
-      run: docker-compose -f ./user-service/docker-compose.yml up --exit-code-from user-service
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run tests
+        run: |
+          docker-compose -f docker-compose.yml up --exit-code-from user-service
+        env_file:
+          - ./.env
 
   push:
 
     needs: test
 
     steps:
-    
+
+    - uses: actions/checkout@v2
+        
     - name: Login to Docker Hub
       run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
     - name: Build images
       run: |
-       docker build ./user-service -t mydockerid/user-service:latest
-       docker build ./user-service -f ./user-service/Dockerfile.db -t mydockerid/user-db:latest
+       docker build -t mydockerid/user-service:latest .  
+       docker build -f Dockerfile.db -t mydockerid/user-db:latest .
              
     - name: Push images
-      run: |
-        docker push mydockerid/user-service:latest  
-        docker push mydockerid/user-db:latest
+     run: |
+       docker push mydockerid/user-service:latest  
+       docker push mydockerid/user-db:latest
