@@ -8,6 +8,7 @@ const chaiHttp = require("chai-http");
 const TestUtils = require("./test_utils");
 const Utils = require("../src/utils/utils");
 const pool = require("../src/config/db");
+const waitPort = require("wait-port");
 
 if (process.env.NODE_ENV === "test") {
     require("dotenv").config({ path: ".env.test" });
@@ -25,6 +26,8 @@ describe("Unit tests for user management", () => {
     let user1Token = "";
     before(async () => {
         try {
+            await waitPort({host:process.env.PG_HOST, port: process.env.PG_PORT, timeout: 15000})
+
             const client = await pool.connect();
             console.log("connected to PostgreSQL database.");
             client.release();
