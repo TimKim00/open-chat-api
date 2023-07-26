@@ -27,7 +27,7 @@ const Utils = {
     },
 
     async createUserProfileDatabase() {
-        await createSequenceIfNotExists(pool, 'user_profiles_profile_id_seq');
+        await this.createSequenceIfNotExists(pool, 'user_profiles_profile_id_seq');
     // Continue with your queries...
         // await pool.query(`CACHE 1`);
         await pool.query(`ALTER SEQUENCE user_profiles_profile_id_seq OWNER TO ${process.env.PG_USER}`);
