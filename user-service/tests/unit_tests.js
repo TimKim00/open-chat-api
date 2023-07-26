@@ -21,13 +21,13 @@ const app = require("../server");
 chai.should();
 chai.use(chaiHttp);
 
+console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
 describe("Unit tests for user management", () => {
     let user1Token = "";
     before(async () => {
         try {
             const client = await pool.connect();
             console.log("connected to PostgreSQL database.");
-            console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
             client.release();
 
             if (process.env.NODE_ENV === "test") {
