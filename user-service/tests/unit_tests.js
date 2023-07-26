@@ -26,11 +26,7 @@ describe("Unit tests for user management", () => {
     let user1Token = "";
     before(async () => {
         try {
-            await waitPort({host:process.env.PG_HOST, port: process.env.PG_PORT, timeout: 15000})
-
-            const client = await pool.connect();
-            console.log("connected to PostgreSQL database.");
-            client.release();
+            await waitPort({host:process.env.PG_HOST, port: Number(process.env.PG_PORT), timeout: 15000})
 
             if (process.env.NODE_ENV === "test") {
                 await TestUtils.initializeTestDatabase();
