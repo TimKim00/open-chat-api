@@ -5,6 +5,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
     networks:
       - network1
     env_file: 
@@ -26,7 +31,8 @@ services:
       DB_HOST: db
       DB_PORT: ${PG_PORT}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 networks:
   network1:
