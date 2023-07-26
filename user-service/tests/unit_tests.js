@@ -34,7 +34,7 @@ describe('Unit tests for user management', () => {
         });
         
         if (process.env.NODE_ENV === "test") {
-            await TestUtils.initializeTestDatabaseDatabase();
+            await TestUtils.initializeTestDatabase();
         } else {
             await TestUtils.initializeDatabase();
         }
