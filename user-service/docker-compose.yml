@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.db
+    networks:
+      - network1
     env_file: 
       - .env
     environment:
@@ -15,6 +17,8 @@ services:
   user-service:
     build: 
       context: .
+    networks:
+      - network1
     environment:
       DB_NAME: $DB_NAME 
       DB_USER: $DB_USER
