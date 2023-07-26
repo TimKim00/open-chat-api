@@ -10,9 +10,9 @@ services:
     env_file: 
       - .env
     environment:
-      POSTGRES_USER: $DB_USER
-      POSTGRES_PASSWORD: $DB_PASS
-      POSTGRES_DB: $DB_NAME 
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DATABASE}
 
   user-service:
     build: 
@@ -20,10 +20,11 @@ services:
     networks:
       - network1
     environment:
-      DB_NAME: $DB_NAME 
-      DB_USER: $DB_USER
-      DB_PASS: $DB_PASS
+      DB_NAME: ${PG_DATABASE}
+      DB_USER: ${PG_USER}
+      DB_PASS: ${PG_PASSWORD}
       DB_HOST: db
+      DB_PORT: ${PG_PORT}
     depends_on:
       - db
 
