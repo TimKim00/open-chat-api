@@ -30,7 +30,9 @@ jobs:
       - name: Build and Test
         run: |
           cd user-service
-          docker-compose run -e NODE_ENV=$NODE_ENV user-service up --build --abort-on-container-exit
+          docker-compose run -e NODE_ENV=test user-service
+          docker-compose up --build --abort-on-container-exit
+
 
   build-and-deploy:
     needs: build-and-test
