@@ -22,7 +22,7 @@ const Utils = {
             created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
             password_changed_at timestamp with time zone,
             logged_out_at timestamp with time zone,
-            is_admin boolean NOT NULL DEFAULT false,
+            admin_status boolean NOT NULL DEFAULT false,
             email character varying(100) COLLATE pg_catalog."default",
             profile_id integer,
             CONSTRAINT users_pkey PRIMARY KEY (user_id),
