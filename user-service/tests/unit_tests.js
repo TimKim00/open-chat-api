@@ -26,7 +26,7 @@ describe("Unit tests for user management", () => {
     let user1Token = "";
     before(async () => {
         try {
-            await waitPort({host:process.env.PG_HOST, port: Number(process.env.PG_PORT), timeout: 15000})
+            await waitPort({ host: process.env.PG_HOST, port: Number(process.env.PG_PORT), timeout: 15000 })
 
             if (process.env.NODE_ENV === "test") {
                 await TestUtils.initializeTestDatabase();
@@ -35,7 +35,7 @@ describe("Unit tests for user management", () => {
                 await TestUtils.initializeDatabase();
                 console.log("initialized database.");
             }
-        } catch(err) {
+        } catch (err) {
             console.error("connection error", err.stack);
         }
     });
@@ -245,9 +245,10 @@ describe("Unit tests for user management", () => {
 
 describe("Unit tests for user management", () => {
     let user1Token = "";
+    let user1Info;
     before(async () => {
         try {
-            await waitPort({host:process.env.PG_HOST, port: Number(process.env.PG_PORT), timeout: 15000})
+            await waitPort({ host: process.env.PG_HOST, port: Number(process.env.PG_PORT), timeout: 15000 })
 
             if (process.env.NODE_ENV === "test") {
                 await TestUtils.initializeTestDatabase();
@@ -256,7 +257,7 @@ describe("Unit tests for user management", () => {
                 await TestUtils.initializeDatabase();
                 console.log("initialized database.");
             }
-        } catch(err) {
+        } catch (err) {
             console.error("connection error", err.stack);
         }
     });
@@ -287,10 +288,11 @@ describe("Unit tests for user management", () => {
                 res.body.should.have.property("accessToken");
                 user1Token = res.body.accessToken;
                 res.body.should.have.property("userInfo");
+                user1Info = res.body.userInfo;
                 res.body.userInfo.username.should.be.equal(user1.username);
                 res.body.userInfo.email.should.be.equal(user1.email);
                 res.body.userInfo.adminStatus.should.be.equal(false);
-                
+
                 chai.request(server)
                     .post("/user/profile")
                     .set("Authorization", "Bearer " + user1Token)
@@ -305,11 +307,128 @@ describe("Unit tests for user management", () => {
                         res.body.profileInfo.name.should.be.equal(user1Profile.displayname);
                         res.body.profileInfo.sex.should.be.equal("Other");
                         res.body.profileInfo.privacySetting.should.be.equal("public");
-                        done();
+                        chai.request(server)
+                            .post("/user/profile")
+                            .set("Authorization", "Bearer " + user1Token)
+                            .send(user1Profile)
+                            .end((err, res) => {
+                                if (err) {
+                                    return done(err);
+                                }
+                                res.should.have.status(400);
+                                done();
+                            });
                     });
             });
 
     });
+
+    it("Test profile update", (done) => {
+        const newUser1Profile = {
+            username: "test_username",
+            displayname: "test_displayname2",
+            sex: "Male",
+        }
+
+        const profileQueryById = {
+            userId: user1Info.userId
+        }
+
+        const profileQueryByUsername = {
+            username: user1Info.username
+        }
+
+        chai.request(server)
+            .put("/user/profile")
+            .set("Authorization", "Bearer " + user1Token)
+            .send(newUser1Profile)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property("profileInfo");
+                res.body.profileInfo.name.should.be.equal(newUser1Profile.displayname);
+                res.body.profileInfo.sex.should.be.equal("Male");
+                res.body.profileInfo.privacySetting.should.be.equal("public");
+                chai.request(server)
+                    .get("/user/profile/search")
+                    .set("Authorization", "Bearer " + user1Token)
+                    .send(profileQueryById)
+                    .end((err, res) => {
+                        if (err) {
+                            return done(err);
+                        }
+                        res.should.have.status(200);
+                        res.body.should.be.a("object");
+                        res.body.should.have.property("profileInfo");
+                        res.body.profileInfo.name.should.be.equal(newUser1Profile.displayname);
+                        res.body.profileInfo.sex.should.be.equal("Male");
+                        res.body.profileInfo.privacySetting.should.be.equal("public");
+                        chai.request(server)
+                            .get("/user/profile/search")
+                            .set("Authorization", "Bearer " + user1Token)
+                            .send(profileQueryByUsername)
+                            .end((err, res) => {
+                                if (err) {
+                                    return done(err);
+                                }
+                                res.should.have.status(200);
+                                res.body.should.be.a("object");
+                                res.body.should.have.property("profileInfo");
+                                res.body.profileInfo.name.should.be.equal(newUser1Profile.displayname);
+                                res.body.profileInfo.sex.should.be.equal("Male");
+                                res.body.profileInfo.privacySetting.should.be.equal("public");
+                                chai.request(server)
+                                    .get("/user/profile")
+                                    .set("Authorization", "Bearer " + user1Token)
+                                    .end((err, res) => {
+                                        if (err) {
+                                            return done(err);
+                                        }
+                                        res.should.have.status(200);
+                                        res.body.should.be.a("object");
+                                        res.body.should.have.property("profileInfo");
+                                        res.body.profileInfo.name.should.be.equal(newUser1Profile.displayname);
+                                        res.body.profileInfo.sex.should.be.equal("Male");
+                                        res.body.profileInfo.privacySetting.should.be.equal("public");
+                                        done();
+                                    });
+                            });
+                    });
+            });
+    });
+
+    it("Test profile deletion", (done) => {
+        const deleteQuery = {
+            username: user1Info.username,
+            userId: user1Info.userId
+        }
+
+        chai.request(server)
+            .delete("/user/profile")
+            .set("Authorization", "Bearer " + user1Token)
+            .send(deleteQuery)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                res.should.have.status(204);
+
+                chai.request(server)
+                    .get("/user/profile")
+                    .set("Authorization", "Bearer " + user1Token)
+                    .end((err, res) => {
+                        if (err) {
+                            return done(err);
+                        }
+                        res.should.have.status(400);
+                        done();
+                    });
+            });
+    });
+
 
     after(async function () {
         if (process.env.NODE_ENV === "test") {

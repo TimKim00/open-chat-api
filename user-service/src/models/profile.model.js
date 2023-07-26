@@ -9,6 +9,12 @@ const Profile = {
         if (user.rowCount === 0) {
             return null;
         }
+
+        const existingProfile = await pool.query('SELECT * FROM user_profiles WHERE user_id = $1', [user.rows[0].user_id]);
+        if (existingProfile.rowCount > 0) {
+            // There already exists a profile. 
+            return null;
+        }
         
         const queryObj = buildProfileQuery(displayname, birthdate, sex, bio, 2);
         if (!queryObj.notNull) {
@@ -23,30 +29,87 @@ const Profile = {
 
         const result = await pool.query(query, values);
 
-        return result.rowCount > 0 ? Utils.userProfileFilter(result.rows[0]) : null;
+        return result.rowCount > 0 ? Utils.setUserProfile(Utils.userProfileFilter(result.rows[0])) : null;
     },
 
     /** Updates the profile information */
     async updateProfile(username, displayname, birthdate, sex, bio) {
+        // Get the user Id of the username. 
         const user = await pool.query(`SELECT user_id FROM users WHERE username = $1`, [username]);
         if (user.rowCount === 0) {
             return null;
         }
 
-        const query = `INSERT INTO user_profiles (
-            name, birthdate, age, sex, bio)
-        ) VALUES ($1, $2, $3, $4, $5) WHERE user_id = $6
-         RETURNING *`;
+        const existingProfile = await pool.query('SELECT * FROM user_profiles WHERE user_id = $1', [user.rows[0].user_id]);
+        if (existingProfile.rowCount === 0) {
+            // There is no profile set by the user.
+            return null;
+        }
+        
+        const queryObj = buildProfileQuery(displayname, birthdate, sex, bio);
+        if (!queryObj.notNull) {
+            // No fields to update the profile. Return the existing profile.
+            return Utils.userProfileFilter(existingProfile.rows[0]);
+        }
 
-        const values = [displayname, birthdate, sex, bio, user.rows[0].user_id];
+        let num = 2;
+        const fields = queryObj.fields.split(', ').map(field => `${field} = $${num++}`).join(', ');
+
+        const query = `UPDATE user_profiles SET ${fields} WHERE user_id = $1 RETURNING *`;
+        const values = queryObj.values;
+        values.unshift(user.rows[0].user_id);
+
         const result = await pool.query(query, values);
 
         return result.rowCount > 0 ? Utils.userProfileFilter(result.rows[0]) : null;
     },
 
-    /** Retreives the profile information */
-    async getProfile() {
+    /** Searches for a profile of a user named USERNAME or USERID*/
+    async searchProfile(username=null, userId=null) {
+        if (!username && !userId) {
+            // Nothing has been defined to search for.
+            return null;
+        }
 
+        let result = undefined;
+        if (username) {
+            const user = await pool.query(`SELECT user_id FROM users WHERE username = $1`, [username]);
+            if (user.rowCount === 0) {
+                return null;
+            }
+            result = await pool.query(`SELECT * FROM user_profiles WHERE user_id = $1`, [user.rows[0].user_id]);
+        } else {
+            result = await pool.query(`SELECT * FROM user_profiles WHERE user_id = $1`, [userId]);
+        }
+
+        return result.rowCount > 0 ? Utils.userProfileFilter(result.rows[0]) : null;
+    },
+
+    /** Remove the profile. */
+    async deleteProfile(username=null, userId=null) {
+        if (!username && !userId) {
+            // Nothing has been defined to search for.
+            return null;
+        }
+
+        let result = undefined;
+        if (username) {
+            const user = await pool.query(`SELECT user_id FROM users WHERE username = $1`, [username]);
+            if (user.rowCount === 0) {
+                return null;
+            }
+            result = await pool.query(`DELETE FROM user_profiles WHERE user_id = $1`, [user.rows[0].user_id]);
+            if (result.rowCount > 0) {
+                result = await pool.query('UPDATE users SET profile_id = NULL WHERE user_id = $1', [user.rows[0].user_id]);
+            }
+        } else {
+            result = await pool.query(`DELETE FROM user_profiles WHERE user_id = $1`, [userId]);
+            if (result.rowCount > 0) {
+                result = await pool.query('UPDATE users SET profile_id = NULL WHERE user_id = $1', [userId]);
+            }
+        }
+
+        return result.rowCount > 0;
     },
 
     /** Sets the profile privacy. */
@@ -56,11 +119,6 @@ const Profile = {
 
     /** Sets the profile image */
     async setProfileImage() {
-
-    },
-
-    /** Deletes the profile */
-    async deleteProfile() {
 
     },
 
@@ -74,8 +132,26 @@ const Profile = {
 
     },
 
+    /** Rejects friend request from USER */
+    async rejectFriendRequest() {
+
+    },
+
+    /** Removes the friend. In case when the friend request was not
+     *  accepted yet, the friend request will be deleted.
+     */
+
+    async removeFriend() {
+
+    },
+
     /** Blocks USER from viewing the profile or inviting to chat. */
     async blockUser() {
+
+    },
+
+    /** Unblocks USER  */
+    async unblockUser() {
 
     },
 
@@ -94,9 +170,10 @@ const Profile = {
  *  Counter should be the number of the next value to be inserted. (1 by default)
  */
 function buildProfileQuery(displayname, birthdate, sex, bio, counter=1) {
-    fields = ``;
-    insertFields = ``;
-    values = [];
+    let fields = ``;
+    let insertFields = ``;
+    let values = [];
+    let defaultCount = counter;
 
     if (displayname) {
         fields += `name, `;
@@ -133,8 +210,8 @@ function buildProfileQuery(displayname, birthdate, sex, bio, counter=1) {
         fields: fields, 
         insertFields: insertFields,
         values: values,
-        length: counter - 1,
-        notNull: counter > 1
+        length: counter - defaultCount,
+        notNull: counter > defaultCount
     }
 }
 
