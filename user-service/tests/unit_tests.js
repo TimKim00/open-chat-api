@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "test") {
 }
 
 /** Start the mock application.  */
-const app = require("../server");
+const server = require("../server");
 
 chai.should();
 chai.use(chaiHttp);
@@ -55,7 +55,7 @@ describe("Unit tests for user management", () => {
         };
 
         chai
-            .request(app)
+            .request(server)
             .post("/auth/register")
             .send(user1)
             .end((err, res) => {
@@ -70,7 +70,7 @@ describe("Unit tests for user management", () => {
                 res.body.userInfo.email.should.be.equal(user1.email);
                 res.body.userInfo.adminStatus.should.be.equal(false);
                 chai
-                    .request(app)
+                    .request(server)
                     .post("/auth/register")
                     .send(admin)
                     .end((err, res) => {
@@ -96,7 +96,7 @@ describe("Unit tests for user management", () => {
         };
 
         chai
-            .request(app)
+            .request(server)
             .post("/auth/login")
             .send(user1)
             .end((err, res) => {
@@ -114,7 +114,7 @@ describe("Unit tests for user management", () => {
         };
 
         chai
-            .request(app)
+            .request(server)
             .get("/auth/logout")
             .set("Authorization", "Bearer " + user1Token)
             .send(user1)
@@ -135,7 +135,7 @@ describe("Unit tests for user management", () => {
             email: "modified@test.com",
         };
         chai
-            .request(app)
+            .request(server)
             .post("/auth/login")
             .send(user1)
             .end((err, res) => {
@@ -145,7 +145,7 @@ describe("Unit tests for user management", () => {
                 user1Token = res.body.accessToken;
 
                 chai
-                    .request(app)
+                    .request(server)
                     .put("/user")
                     .set("Authorization", "Bearer " + user1Token)
                     .send(user1)
@@ -155,7 +155,7 @@ describe("Unit tests for user management", () => {
                         res.body.email.should.be.equal(user1.email);
 
                         chai
-                            .request(app)
+                            .request(server)
                             .get("/user")
                             .set("Authorization", "Bearer " + user1Token)
                             .send({ username: user1.username })
@@ -179,7 +179,7 @@ describe("Unit tests for user management", () => {
 
         await new Promise((resolve, reject) => {
             chai
-                .request(app)
+                .request(server)
                 .put("/auth/change-password")
                 .set("Authorization", "Bearer " + user1Token)
                 .send(user1)
@@ -193,7 +193,7 @@ describe("Unit tests for user management", () => {
 
         const loginWithOldPassword = new Promise((resolve, reject) => {
             chai
-                .request(app)
+                .request(server)
                 .post("/auth/login")
                 .send({ username: user1.username, password: user1.oldPassword })
                 .end((err, res) => {
@@ -205,7 +205,7 @@ describe("Unit tests for user management", () => {
 
         const loginWithOldToken = new Promise((resolve, reject) => {
             chai
-                .request(app)
+                .request(server)
                 .put("/auth/change-password")
                 .set("Authorization", "Bearer " + user1Token)
                 .end((err, res) => {
@@ -217,7 +217,7 @@ describe("Unit tests for user management", () => {
 
         const loginWithNewPassword = new Promise((resolve, reject) => {
             chai
-                .request(app)
+                .request(server)
                 .post("/auth/login")
                 .send({ username: user1.username, password: user1.newPassword })
                 .end((err, res) => {
@@ -234,6 +234,81 @@ describe("Unit tests for user management", () => {
             loginWithOldToken,
             loginWithNewPassword,
         ]);
+    });
+
+    after(async function () {
+        if (process.env.NODE_ENV === "test") {
+            await TestUtils.clearUserDatabase();
+        }
+    });
+});
+
+describe("Unit tests for user management", () => {
+    let user1Token = "";
+    before(async () => {
+        try {
+            await waitPort({host:process.env.PG_HOST, port: Number(process.env.PG_PORT), timeout: 15000})
+
+            if (process.env.NODE_ENV === "test") {
+                await TestUtils.initializeTestDatabase();
+                console.log("initialized test database.");
+            } else {
+                await TestUtils.initializeDatabase();
+                console.log("initialized database.");
+            }
+        } catch(err) {
+            console.error("connection error", err.stack);
+        }
+    });
+
+    it("Test profile creation", (done) => {
+        const user1 = {
+            username: "test_username",
+            password: "test_password",
+            email: "test_email@test.com",
+        };
+
+        const user1Profile = {
+            username: "test_username",
+            displayname: "test_displayname",
+            birthdate: "1990-01-01",
+        }
+
+        chai
+            .request(server)
+            .post("/auth/register")
+            .send(user1)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                res.should.have.status(201);
+                res.body.should.be.a("object");
+                res.body.should.have.property("accessToken");
+                user1Token = res.body.accessToken;
+                res.body.should.have.property("userInfo");
+                res.body.userInfo.username.should.be.equal(user1.username);
+                res.body.userInfo.email.should.be.equal(user1.email);
+                res.body.userInfo.adminStatus.should.be.equal(false);
+                
+                chai.request(server)
+                    .post("/user/profile")
+                    .set("Authorization", "Bearer " + user1Token)
+                    .send(user1Profile)
+                    .end((err, res) => {
+                        if (err) {
+                            return done(err);
+                        }
+                        res.should.have.status(201);
+                        res.body.should.be.a("object");
+                        res.body.should.have.property("profileInfo");
+                        res.body.profileInfo.name.should.be.equal(user1Profile.displayname);
+                        res.body.profileInfo.sex.should.be.equal("Other");
+                        res.body.profileInfo.privacySetting.should.be.equal("public");
+                        done();
+                    });
+            });
+
     });
 
     after(async function () {

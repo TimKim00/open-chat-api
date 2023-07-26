@@ -11,9 +11,9 @@ const Utils = {
 
         if (!userInfo || lastTimestamp.rows[0].last_login > tokenTimestamp
             || lastTimestamp.rows[0].password_changed_at > tokenTimestamp) {
-            return false;
+            return null;
         }
-        return true;
+        return userInfo;
     },
 
     /** Creates a json object that contains the accesstoken
@@ -37,6 +37,20 @@ const Utils = {
             name: userInfo.name,
             adminStatus: userInfo.admin_status,
             createdAt: userInfo.created_at,
+        }
+    },
+
+    userProfileFilter(profileInfo) {
+        return {
+            profileId: profileInfo.profile_id,
+            userId: profileInfo.user_id,
+            name: profileInfo.name,
+            birthdate: profileInfo.birthdate,
+            age: profileInfo.age,
+            sex: profileInfo.sex,
+            privacySetting: profileInfo.privacy_setting,
+            profilePictureUrl: profileInfo.profile_picture_url,
+            bio: profileInfo.bio,
         }
     }
 }

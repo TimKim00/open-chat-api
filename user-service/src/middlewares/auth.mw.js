@@ -8,9 +8,11 @@ module.exports = async function(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];  // Bearer <token>
     try {
-        if (!token || !await Utils.validateToken(token)) {
+        const userInfo = await Utils.validateToken(token);
+        if (!token || !userInfo) {
             return res.status(401).json({msg: 'Unauthorized'});
         }
+        req.user = userInfo
         next();
     } catch (err) {
         res.status(401).json({msg: 'Unauthorized'});
