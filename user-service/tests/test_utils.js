@@ -63,23 +63,9 @@ const Utils = {
     // Clears everything related to users inside the database.
     // In this case, the information about leagues and teams will persist.
     async clearUserDatabase() {
-        await this.clearUser();
-        await this.clearUserProfile();
+        await pool.query('DROP TABLE users, user_profiles CASCADE');
         return;
     },
-
-    // Remove the users database.
-    async clearUser() {
-        await pool.query('DROP TABLE users');
-        return;
-    },
-
-    // Remove the user profiles database.
-    async clearUserProfile() {
-        await pool.query('DROP TABLE user_profiles');
-        return;
-    },
-
 
     // Initialize the database to default settings.
     async initializeTestDatabase() {
