@@ -180,7 +180,7 @@ describe("Unit tests for user management", () => {
         await new Promise((resolve, reject) => {
             chai
                 .request(app)
-                .put("/auth/change_password")
+                .put("/auth/change-password")
                 .set("Authorization", "Bearer " + user1Token)
                 .send(user1)
                 .end((err, res) => {
@@ -206,7 +206,7 @@ describe("Unit tests for user management", () => {
         const loginWithOldToken = new Promise((resolve, reject) => {
             chai
                 .request(app)
-                .put("/auth/change_password")
+                .put("/auth/change-password")
                 .set("Authorization", "Bearer " + user1Token)
                 .end((err, res) => {
                     if (err) return reject(err);

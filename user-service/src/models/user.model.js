@@ -2,6 +2,8 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const Utils = require('../utils/utils');
 
+process.env.NODE_ENV === 'test' ? require('dotenv').config({ path: '.env.test' }) : require('dotenv').config();
+
 const User = {
     /** Finds user with username */
     async findByUsername(username) {
@@ -105,7 +107,7 @@ const User = {
 
         const result = await pool.query(query, values);
         return result.rowCount > 0;
-    }
+    },
 }
 
 async function encryptPassword(password) {

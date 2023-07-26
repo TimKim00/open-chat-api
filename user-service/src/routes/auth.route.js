@@ -10,6 +10,6 @@ const router = express.Router();
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.get('/logout', authenticator, userController.logoutUser);
-router.put('/change_password', authenticator, userController.changePassword);
+router.put('/change-password', authenticator, userController.changePassword);
 
 module.exports = router;

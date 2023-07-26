@@ -40,6 +40,7 @@ const Utils = {
         birthdate date,
         age integer,
         sex gender_enum,
+        private boolean NOT NULL DEFAULT false,
         profile_picture_url character varying(200) COLLATE pg_catalog."default",
         bio text COLLATE pg_catalog."default",
         CONSTRAINT user_profiles_pkey PRIMARY KEY (profile_id),
