@@ -10,9 +10,9 @@ const Utils = require('../src/utils/utils');
 const pool = require('../src/config/db');
 
 if (process.env.NODE_ENV === 'test') {
-    require('dotenv').config({ path: '.env.test' }) 
+    require('dotenv').config({ path: '.env.test' }); 
 } else {
-    require('dotenv').config()
+    require('dotenv').config();
 }
 
 
@@ -32,8 +32,9 @@ describe('Unit tests for user management', () => {
               console.log('connected to PostgreSQL database.');
             }
         });
-        if (process.env.NODE_ENV == "test") {
-            await TestUtils.initializeDatabase();
+        
+        if (process.env.NODE_ENV === "test") {
+            await TestUtils.initializeTestDatabaseDatabase();
         } else {
             await TestUtils.initializeDatabase();
         }
@@ -219,7 +220,7 @@ describe('Unit tests for user management', () => {
 
     
     after(async function() {
-        if (process.env.NODE_ENV == "test") {
+        if (process.env.NODE_ENV === "test") {
             await TestUtils.clearUserDatabase();
         }
         pool.end();

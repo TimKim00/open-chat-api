@@ -27,6 +27,7 @@ jobs:
       - name: Build and Test
         run: |
           cd user-service
+          export NODE_ENV=test
           docker-compose up --build --abort-on-container-exit
 
   build-and-deploy:
