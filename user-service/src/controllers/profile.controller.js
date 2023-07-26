@@ -106,3 +106,24 @@ exports.deleteProfile = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 }
+
+/** Updates the profile image */
+exports.setProfileImage = async (req, res) => {
+    const {username, userId, profilePictureUrl} = req.body;
+    try {
+        if (username !== req.user.username && !req.user.adminStatus) {
+            return res.status(401).json({ msg: 'Unauthorized' });
+        }
+
+        const imageURL = await Profile.setProfileImage(username, userId, profilePictureUrl);
+        
+        if (!imageURL) {
+            return res.status(400).json({ msg: 'Profile Image set failed.' });
+        }
+
+        return res.status(200).json({pictureURL: imageURL});
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ error: 'Server error' });
+    }
+}

@@ -118,8 +118,28 @@ const Profile = {
     },
 
     /** Sets the profile image */
-    async setProfileImage() {
+    async setProfileImage(username=null, userId=null, pictureURL) {
+        if ((!username && ! userId)) {
+            // Nothing has been defined to search for.
+            return null;
+        }
 
+        let result = undefined;
+        if (username) {
+            const user = await pool.query(`SELECT user_id FROM users WHERE username = $1`, [username]);
+            if (user.rowCount === 0) {
+                return null;
+            }
+            result = await pool.query(`UPDATE user_profiles SET profile_picture_url = $2 
+            WHERE user_id = $1 RETURNING profile_picture_url`
+            , [user.rows[0].user_id, pictureURL]);
+        } else {
+            result = await pool.query(`UPDATE user_profiles SET profile_picture_url = $2
+             WHERE user_id = $1 RETURNING profile_picture_url`
+            , [userId, pictureURL]);
+        }
+
+        return result.rowCount > 0 ? result.rows[0].profile_picture_url : null;
     },
 
     /** Sends friend request to USER */

@@ -243,7 +243,7 @@ describe("Unit tests for user management", () => {
     });
 });
 
-describe("Unit tests for user management", () => {
+describe("Unit tests for profile management.", () => {
     let user1Token = "";
     let user1Info;
     before(async () => {
@@ -339,7 +339,7 @@ describe("Unit tests for user management", () => {
         }
 
         chai.request(server)
-            .put("/user/profile")
+            .patch("/user/profile")
             .set("Authorization", "Bearer " + user1Token)
             .send(newUser1Profile)
             .end((err, res) => {
@@ -397,6 +397,27 @@ describe("Unit tests for user management", () => {
                                     });
                             });
                     });
+            });
+    });
+
+    it("Test profile picture updates", (done) => {
+        const pictureQuery = {
+            username: user1Info.username,
+            userId: user1Info.userId,
+            profilePictureUrl: "random.image.url"
+        }
+        chai.request(server)
+            .post("/user/profile/upload-image")
+            .set("Authorization", "Bearer " + user1Token)
+            .send(pictureQuery)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                res.should.have.status(200);
+                res.body.should.have.property("pictureURL");
+                res.body.pictureURL.should.equal(pictureQuery.profilePictureUrl);
+                done();
             });
     });
 
