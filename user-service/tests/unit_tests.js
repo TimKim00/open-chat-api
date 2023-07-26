@@ -28,7 +28,7 @@ describe("Unit tests for user management", () => {
             const client = await pool.connect();
             console.log("connected to PostgreSQL database.");
             console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
-            //client.release();
+            client.release();
 
             if (process.env.NODE_ENV === "test") {
                 await TestUtils.initializeTestDatabase();
