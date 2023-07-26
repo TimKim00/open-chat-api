@@ -26,3 +26,7 @@ services:
       DB_HOST: db
     depends_on:
       - db
+
+networks:
+  network1:
+    driver: bridge
