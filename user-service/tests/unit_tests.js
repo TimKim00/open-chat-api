@@ -34,6 +34,8 @@ describe("Unit tests for user management", () => {
             } else {
                 await TestUtils.initializeDatabase();
             }
+            console.log("initialized database.");
+            console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
         } catch(err) {
             console.error("connection error", err.stack);
         }
