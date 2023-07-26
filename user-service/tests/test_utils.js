@@ -83,7 +83,6 @@ const Utils = {
 
     // Initialize the database to default settings.
     async initializeTestDatabase() {
-        await this.clearUserDatabase();
         await this.createUserDatabase();
         await this.createUserProfileDatabase();
     },
