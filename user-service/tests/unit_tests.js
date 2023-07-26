@@ -21,7 +21,6 @@ const app = require("../server");
 chai.should();
 chai.use(chaiHttp);
 
-console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
 describe("Unit tests for user management", () => {
     let user1Token = "";
     before(async () => {
@@ -32,10 +31,11 @@ describe("Unit tests for user management", () => {
 
             if (process.env.NODE_ENV === "test") {
                 await TestUtils.initializeTestDatabase();
+                console.log("initialized test database.");
             } else {
                 await TestUtils.initializeDatabase();
+                console.log("initialized database.");
             }
-            console.log("initialized database.");
         } catch(err) {
             console.error("connection error", err.stack);
         }
