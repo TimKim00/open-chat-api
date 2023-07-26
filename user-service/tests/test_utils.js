@@ -11,7 +11,7 @@ const Utils = {
             INCREMENT BY 1
             NO MINVALUE
             NO MAXVALUE`);
-        await pool.query(`CACHE 1`);
+        // await pool.query(`CACHE 1`);
         await pool.query(`ALTER SEQUENCE users_user_id_seq OWNER TO ${process.env.PG_USER}`);
 
         await pool.query(`CREATE TABLE IF NOT EXISTS public.users
@@ -37,7 +37,7 @@ const Utils = {
         INCREMENT BY 1
         NO MINVALUE
         NO MAXVALUE`);
-        await pool.query(`CACHE 1`);
+        // await pool.query(`CACHE 1`);
         await pool.query(`ALTER SEQUENCE user_profiles_profile_id_seq OWNER TO ${process.env.PG_USER}`);
 
     await pool.query(`CREATE TABLE IF NOT EXISTS public.user_profiles
