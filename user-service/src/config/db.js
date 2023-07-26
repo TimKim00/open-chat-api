@@ -19,10 +19,11 @@ if (process.env.NODE_ENV !== "test") {
   });
 } else {
   module.exports = new Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    port: process.env.PORT
+    // host: process.env.DB_HOST,
+    // user: process.env.DB_USER,
+    // password: process.env.DB_PASS,
+    // database: process.env.DB_NAME,
+    // port: process.env.PORT
+    connectionString
   })
 }
