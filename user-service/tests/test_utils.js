@@ -4,13 +4,8 @@ const Utils = {
 
     // Create a user database.
     async createUserDatabase() {
-        await pool.query(`CREATE TYPE gender_enum AS ENUM ('Male', 'Female')`);
-        await pool.query(`
-        CREATE SEQUENCE users_user_id_seq
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE`);
+        await this.createTypeIfNotExists(pool, 'gender_enum', ['Male', 'Female']);
+        await this.createSequenceIfNotExists(pool, 'users_user_id_seq');
         // await pool.query(`CACHE 1`);
         await pool.query(`ALTER SEQUENCE users_user_id_seq OWNER TO ${process.env.PG_USER}`);
 
@@ -32,11 +27,8 @@ const Utils = {
     },
 
     async createUserProfileDatabase() {
-        await pool.query(`CREATE SEQUENCE user_profiles_profile_id_seq
-        START WITH 1
-        INCREMENT BY 1
-        NO MINVALUE
-        NO MAXVALUE`);
+        await createSequenceIfNotExists(pool, 'user_profiles_profile_id_seq');
+    // Continue with your queries...
         // await pool.query(`CACHE 1`);
         await pool.query(`ALTER SEQUENCE user_profiles_profile_id_seq OWNER TO ${process.env.PG_USER}`);
 
@@ -58,6 +50,52 @@ const Utils = {
     )`);
     await pool.query(`ALTER TABLE public.user_profiles OWNER TO ${process.env.PG_USER}`);
 
+    },
+
+    async createTypeIfNotExists(pool, typeName, values) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const typeExists = await client.query(
+                `SELECT 1 FROM pg_type WHERE typname = $1`, [typeName]
+            );
+    
+            if(typeExists.rowCount === 0) {
+                await client.query(`CREATE TYPE ${typeName} AS ENUM (${values.map(value => `'${value}'`).join(", ")});`);
+            }
+            await client.query('COMMIT');
+        } catch (e) {
+            await client.query('ROLLBACK');
+            throw e;
+        } finally {
+            client.release();
+        }
+    },
+    
+    async createSequenceIfNotExists(pool, sequenceName) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const sequenceExists = await client.query(
+                `SELECT 1 FROM information_schema.sequences WHERE sequence_name = $1`, [sequenceName]
+            );
+    
+            if(sequenceExists.rowCount === 0) {
+                await client.query(`
+                CREATE SEQUENCE ${sequenceName}
+                    START WITH 1
+                    INCREMENT BY 1
+                    NO MINVALUE
+                    NO MAXVALUE`);
+                await client.query(`ALTER SEQUENCE ${sequenceName} OWNER TO ${process.env.PG_USER}`);
+            }
+            await client.query('COMMIT');
+        } catch (e) {
+            await client.query('ROLLBACK');
+            throw e;
+        } finally {
+            client.release();
+        }
     },
 
     // Clears everything related to users inside the database.
