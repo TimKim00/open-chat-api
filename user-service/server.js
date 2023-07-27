@@ -29,4 +29,7 @@ module.exports = app;
 
 // Start the server.
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+const server = app.listen(port, () => {
+    const { address, port } = server.address();
+    console.log(`User server listening at http://${address}:${port}`);
+});
