@@ -26,6 +26,8 @@ services:
       DB_PASS: ${PG_PASSWORD}
       DB_HOST: db
       DB_PORT: ${PG_PORT}
+    depends_on:
+      - db
   
   user-service-test:
     build: 
