@@ -81,7 +81,7 @@ services:
     depends_on:
       - db
       - gateway-service
-      - user-service
+      # - user-service
   
 networks:
   backend:
