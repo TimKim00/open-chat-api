@@ -10,13 +10,13 @@ const Utils = require("../src/utils/utils");
 const pool = require("../src/config/db");
 const waitPort = require("wait-port");
 
-const apiPath = "/api/users";
-
 if (process.env.NODE_ENV === "test") {
     require("dotenv").config({ path: ".env.test" });
 } else {
     require("dotenv").config();
 }
+
+const apiPath = process.env.API_PATH;
 
 /** Start the mock application.  */
 
