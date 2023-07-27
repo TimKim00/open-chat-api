@@ -28,8 +28,8 @@ jobs:
           cp notification-service/.env.test notification-service/.env && echo "Copied notification-serivce .env.test file"
           cp gateway-service/.env.test gateway-service/.env && echo "Copied gateway-serivce .env.test file"
 
-      - name: Start services
-        run: docker-compose up
+      - name: Build and Test
+        run: docker-compose up --build --abort-on-container-exit
 
       # - name: Run tests
       #   run: docker-compose run -e NODE_ENV=test user-service

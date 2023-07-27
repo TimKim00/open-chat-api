@@ -26,7 +26,8 @@ app.use('/user/profile', profileRoute);
 // app.use('/user/friends', friendRoute);
 
 module.exports = app;
+console.log("server address:", app);
 
 // Start the server.
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.listen(port, () => console.log(`User service running on port ${port}`));
