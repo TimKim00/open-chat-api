@@ -40,6 +40,12 @@ services:
       dockerfile: Dockerfile.db  
     env_file:
       - user-service/.env
+    environment: 
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
+    depends_on:
+      - notification-service
     networks:
      - backend
        
