@@ -32,8 +32,7 @@ app.all("/api/notifications/*", (req, res) => {
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-    const { address, port } = app.address();
-    console.log(`Gateway service listening at http://${address}:${port}`);
+const server = app.listen(port, () => {
+    const { address, port } = server.address();
+    console.log(`Gateway server listening at http://${address}:${port}`);
 });
-
