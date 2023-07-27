@@ -15,5 +15,6 @@ router.delete('/', authenticator, profileController.deleteProfile);
 /** Updating profile infomration. */
 router.patch('/', authenticator, profileController.updateProfile);
 router.post('/upload-image', authenticator, profileController.setProfileImage);
+router.patch('/set-privacy', authenticator, profileController.setPrivacySetting);
 
 module.exports = router;

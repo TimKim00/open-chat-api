@@ -1,8 +1,4 @@
-const User = require('../models/user.model');
-const Utils = require('../utils/utils');
 const Profile = require('../models/profile.model');
-const { registerUser } = require('./user.controller');
-
 /** Gets the user profile. */
 
 /** Creates the user profile. */
@@ -116,12 +112,32 @@ exports.setProfileImage = async (req, res) => {
         }
 
         const imageURL = await Profile.setProfileImage(username, userId, profilePictureUrl);
-        
+
         if (!imageURL) {
             return res.status(400).json({ msg: 'Profile Image set failed.' });
         }
 
         return res.status(200).json({pictureURL: imageURL});
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ error: 'Server error' });
+    }
+}
+
+/** Updates the privacy setting of the profile. */
+exports.setPrivacySetting = async (req, res) => {
+    const {username, userId, privacySetting} = req.body;
+    try {
+        if (username !== req.user.username && !req.user.adminStatus) {
+            return res.status(401).json({ msg: 'Unauthorized' });
+        }
+
+        const privacy = await Profile.setProfilePrivacy(username, userId, privacySetting);
+        if (!privacy) {
+            return res.status(400).json({ msg: 'Profile privacy setting update failed.' });
+        }
+
+        return res.status(200).json({privacySetting: privacy});
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: 'Server error' });

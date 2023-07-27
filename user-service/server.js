@@ -3,6 +3,7 @@ const rateLimit = require('express-rate-limit');
 const authRoute = require('./src/routes/auth.route');
 const userRoute = require('./src/routes/user.route');
 const profileRoute = require('./src/routes/profile.route');
+const friendRoute = require('./src/routes/friends.route');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(apiLimiter);
 app.use('/auth', authRoute);
 app.use('/user', userRoute);
 app.use('/user/profile', profileRoute);
+// app.use('/user/friends', friendRoute);
 
 module.exports = app;
 
