@@ -1,18 +1,18 @@
 version: '3.8'
 
 services:
-  db:
-    build:
-      context: .
-      dockerfile: Dockerfile.db
-    networks:
-      - network1
-    env_file: 
-      - .env
-    environment:
-      POSTGRES_USER: ${PG_USER}
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
-      POSTGRES_DB: ${PG_DATABASE}
+  # db:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.db
+  #   networks:
+  #     - network1
+  #   env_file: 
+  #     - .env
+  #   environment:
+  #     POSTGRES_USER: ${PG_USER}
+  #     POSTGRES_PASSWORD: ${PG_PASSWORD}
+  #     POSTGRES_DB: ${PG_DATABASE}
 
   user-service:
     build: 
