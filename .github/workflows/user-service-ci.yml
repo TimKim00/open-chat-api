@@ -25,7 +25,7 @@ jobs:
       - name: Set up .env.test
         run: |
           cd user-service
-          cp .env.test .env
+          cp .env.test.single .env
 
       - name: Build and Test
         run: |
