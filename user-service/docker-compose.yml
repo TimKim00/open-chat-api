@@ -17,6 +17,20 @@ services:
   user-service:
     build: 
       context: .
+      dockerfile: Dockerfile
+    networks:
+      - network1
+    environment:
+      DB_NAME: ${PG_DATABASE}
+      DB_USER: ${PG_USER}
+      DB_PASS: ${PG_PASSWORD}
+      DB_HOST: db
+      DB_PORT: ${PG_PORT}
+  
+  user-service-test:
+    build: 
+      context: .
+      dockerfile: Dockerfile.test
     networks:
       - network1
     environment:
@@ -27,6 +41,7 @@ services:
       DB_PORT: ${PG_PORT}
     depends_on:
       - db
+      - user-service
 
 networks:
   network1:
