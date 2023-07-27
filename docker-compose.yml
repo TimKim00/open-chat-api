@@ -3,7 +3,6 @@ version: "3.8"
 volumes:
   gateway-service:
   notification-service:
-  user-service:
 
 services:
 
@@ -52,21 +51,29 @@ services:
     build: 
       context: user-service
       dockerfile: Dockerfile
+    depends_on:
+     - gateway-service
+    networks:
+     - backend
+
+  user-service-test:
+    build:
+      context: user-service
+      dockerfile: Dockerfile.test
     env_file:
       - user-service/.env
-    volumes:
-      - user-service:/app
     environment:
       DB_NAME: ${PG_DATABASE}
       DB_USER: ${PG_USER}
       DB_PASS: ${PG_PASSWORD} 
       DB_HOST: db
       DB_PORT: ${PG_PORT}
-    depends_on:
-     - db
-     - gateway-service
     networks:
      - backend
+    depends_on:
+      - db
+      - gateway-service
+      - user-service
   
 networks:
   backend:
