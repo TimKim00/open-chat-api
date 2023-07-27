@@ -31,8 +31,8 @@ jobs:
       - name: Start services
         run: docker-compose up
 
-      # - name: Run tests
-      #   run: docker-compose run -e NODE_ENV=test user-service
+      - name: Run tests
+        run: docker-compose run --abort-on-container-exit -e NODE_ENV=$NODE_ENV user-service npm test
 
   build-and-deploy:
     needs: build-and-test
