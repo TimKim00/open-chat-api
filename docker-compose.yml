@@ -9,8 +9,6 @@ services:
       - network1
     volumes:
       - ./gateway-service:/app
-    ports:
-      - 3000:3000
     environment:
       - NODE_ENV=${NODE_ENV}
 
