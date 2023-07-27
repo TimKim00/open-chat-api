@@ -421,6 +421,27 @@ describe("Unit tests for profile management.", () => {
             });
     });
 
+    it("Test profile privacy updates", (done) => {
+        const privacyQuery = {
+            username: user1Info.username,
+            userId: user1Info.userId,
+            privacySetting: "friends_only"
+        }
+        chai.request(server)
+            .patch("/user/profile/set-privacy")
+            .set("Authorization", "Bearer " + user1Token)
+            .send(privacyQuery)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                res.should.have.status(200);
+                res.body.should.have.property("privacySetting");
+                res.body.privacySetting.should.equal(privacyQuery.privacySetting);
+                done();
+            });
+    });
+
     it("Test profile deletion", (done) => {
         const deleteQuery = {
             username: user1Info.username,

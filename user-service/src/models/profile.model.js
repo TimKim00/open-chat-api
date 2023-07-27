@@ -113,8 +113,28 @@ const Profile = {
     },
 
     /** Sets the profile privacy. */
-    async setProfilePrivacy() {
+    async setProfilePrivacy(username=null, userId=null, privacySetting) {
+        if ((!username && ! userId)) {
+            // Nothing has been defined to search for.
+            return null;
+        }
 
+        let result = undefined;
+        if (username) {
+            const user = await pool.query(`SELECT user_id FROM users WHERE username = $1`, [username]);
+            if (user.rowCount === 0) {
+                return null;
+            }
+            result = await pool.query(`UPDATE user_profiles SET privacy_setting = $2 
+            WHERE user_id = $1 RETURNING privacy_setting`
+            , [user.rows[0].user_id, privacySetting]);
+        } else {
+            result = await pool.query(`UPDATE user_profiles SET privacy_setting = $2
+             WHERE user_id = $1 RETURNING privacy_setting`
+            , [userId, privacySetting]);
+        }
+
+        return result.rowCount > 0 ? result.rows[0].privacy_setting : null;
     },
 
     /** Sets the profile image */
@@ -141,45 +161,7 @@ const Profile = {
 
         return result.rowCount > 0 ? result.rows[0].profile_picture_url : null;
     },
-
-    /** Sends friend request to USER */
-    async sendFriendRequest() {
-
-    },
-
-    /** Accepts friend request from USER */
-    async acceptFriendRequest() {
-
-    },
-
-    /** Rejects friend request from USER */
-    async rejectFriendRequest() {
-
-    },
-
-    /** Removes the friend. In case when the friend request was not
-     *  accepted yet, the friend request will be deleted.
-     */
-
-    async removeFriend() {
-
-    },
-
-    /** Blocks USER from viewing the profile or inviting to chat. */
-    async blockUser() {
-
-    },
-
-    /** Unblocks USER  */
-    async unblockUser() {
-
-    },
-
-    /** Gets the users' friendship status between USER 1 and USER 2 */
-    async getFriendStatus() {
-
-    },
-
+    
     /** Gets the user's privacy settings */
     async getPrivacyStatus() {
 
