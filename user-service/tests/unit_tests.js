@@ -18,8 +18,8 @@ if (process.env.NODE_ENV === "test") {
 
 /** Start the mock application.  */
 
-const server = require("../server");
-//const server = process.env.SERVER_ADDRESS;
+//const server = require("../server");
+const server = process.env.SERVER_ADDRESS;
 
 chai.should();
 chai.use(chaiHttp);
