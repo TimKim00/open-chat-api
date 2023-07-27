@@ -40,10 +40,10 @@ services:
       dockerfile: Dockerfile.db  
     env_file:
       - user-service/.env
-    environment: 
-      POSTGRES_USER: testuser
-      POSTGRES_PASSWORD: testpass
-      POSTGRES_DB: testdb
+    eenvironment:
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD} 
     networks:
      - backend
        
