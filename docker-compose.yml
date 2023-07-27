@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./gateway-service:/app
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=${NODE_ENV}
+
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./user-service:/app
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    depends_on:
+      - notification-service
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./notification-service:/app
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    depends_on:
+      - gateway-service
