@@ -24,9 +24,9 @@ jobs:
 
       - name: Set up .env.test
         run: |
-          cp user-service/.env.test user-service/.env
-          cp notification-service/.env.test notification-service/.env
-          cp gateway-service/.env.test gateway-service/.env
+          cp user-service/.env.test user-service/.env && echo "Copied user-serivce .env.test file"
+          cp notification-service/.env.test notification-service/.env && echo "Copied notification-serivce .env.test file"
+          cp gateway-service/.env.test gateway-service/.env && echo "Copied gateway-serivce .env.test file"
 
       - name: Start services
         run: docker-compose up -d gateway-service notification-service 
