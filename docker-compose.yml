@@ -47,22 +47,22 @@ services:
     networks:
      - backend
        
-  user-service:
-    build: 
-      context: user-service
-      dockerfile: Dockerfile
-    env_file:
-      - user-service/.env
-    environment:
-      DB_NAME: ${PG_DATABASE}
-      DB_USER: ${PG_USER}
-      DB_PASS: ${PG_PASSWORD} 
-      DB_HOST: db
-      DB_PORT: ${PG_PORT}
-    depends_on:
-     - gateway-service
-    networks:
-     - backend
+  # user-service:
+  #   build: 
+  #     context: user-service
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - user-service/.env
+  #   environment:
+  #     DB_NAME: ${PG_DATABASE}
+  #     DB_USER: ${PG_USER}
+  #     DB_PASS: ${PG_PASSWORD} 
+  #     DB_HOST: db
+  #     DB_PORT: ${PG_PORT}
+  #   depends_on:
+  #    - gateway-service
+  #   networks:
+  #    - backend
 
   user-service-test:
     build:
