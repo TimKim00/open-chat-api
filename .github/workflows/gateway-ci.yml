@@ -29,16 +29,10 @@ jobs:
           cp gateway-service/.env.test gateway-service/.env
 
       - name: Start services
-        run: |
-          docker-compose up -d gateway-service
-          docker-compose up -d notification-service
-          docker-compose up -d user-service
+        run: docker-compose up -d gateway-service notification-service 
 
       - name: Run tests
-        run: |
-          docker-compose run -e NODE_ENV=test user-service
-
-
+        run: docker-compose run -e NODE_ENV=test user-service
 
   build-and-deploy:
     needs: build-and-test
@@ -54,8 +48,17 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image for user-service
         run: |
-          cd user-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/open-chat-user-app:${{ github.sha }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/open-chat-user-app:${{ github.sha }} ./user-service
           docker push ${{ secrets.DOCKER_USERNAME }}/open-chat-user-app:${{ github.sha }}
+
+      - name: Build and push Docker image for notification-service
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/open-chat-notification-app:${{ github.sha }} ./notification-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/open-chat-notification-app:${{ github.sha }}
+
+      - name: Build and push Docker image for gateway-service
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/open-chat-gateway-app:${{ github.sha }} ./gateway-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/open-chat-gateway-app:${{ github.sha }}
