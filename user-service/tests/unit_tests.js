@@ -10,6 +10,8 @@ const Utils = require("../src/utils/utils");
 const pool = require("../src/config/db");
 const waitPort = require("wait-port");
 
+const apiPath = "/api/users";
+
 if (process.env.NODE_ENV === "test") {
     require("dotenv").config({ path: ".env.test" });
 } else {
@@ -17,7 +19,9 @@ if (process.env.NODE_ENV === "test") {
 }
 
 /** Start the mock application.  */
-const server = require("../server");
+
+//const server = require("../server");
+const server = process.env.SERVER_ADDRESS;
 
 chai.should();
 chai.use(chaiHttp);
@@ -56,7 +60,7 @@ describe("Unit tests for user management", () => {
 
         chai
             .request(server)
-            .post("/auth/register")
+            .post(apiPath + "/auth/register")
             .send(user1)
             .end((err, res) => {
                 if (err) {
@@ -69,9 +73,8 @@ describe("Unit tests for user management", () => {
                 res.body.userInfo.username.should.be.equal(user1.username);
                 res.body.userInfo.email.should.be.equal(user1.email);
                 res.body.userInfo.adminStatus.should.be.equal(false);
-                chai
-                    .request(server)
-                    .post("/auth/register")
+                chai.request(server)
+                    .post(apiPath + "/auth/register")
                     .send(admin)
                     .end((err, res) => {
                         if (err) {
@@ -95,9 +98,8 @@ describe("Unit tests for user management", () => {
             password: "test_password",
         };
 
-        chai
-            .request(server)
-            .post("/auth/login")
+        chai.request(server)
+            .post(apiPath + "/auth/login")
             .send(user1)
             .end((err, res) => {
                 res.should.have.status(201);
@@ -113,9 +115,8 @@ describe("Unit tests for user management", () => {
             username: "test_username",
         };
 
-        chai
-            .request(server)
-            .get("/auth/logout")
+        chai.request(server)
+            .get(apiPath + "/auth/logout")
             .set("Authorization", "Bearer " + user1Token)
             .send(user1)
             .end((err, res) => {
@@ -134,9 +135,8 @@ describe("Unit tests for user management", () => {
             password: "test_password",
             email: "modified@test.com",
         };
-        chai
-            .request(server)
-            .post("/auth/login")
+        chai.request(server)
+            .post(apiPath + "/auth/login")
             .send(user1)
             .end((err, res) => {
                 res.should.have.status(201);
@@ -144,9 +144,8 @@ describe("Unit tests for user management", () => {
                 res.body.should.have.property("accessToken");
                 user1Token = res.body.accessToken;
 
-                chai
-                    .request(server)
-                    .put("/user")
+                chai.request(server)
+                    .put(apiPath + "/user")
                     .set("Authorization", "Bearer " + user1Token)
                     .send(user1)
                     .end((err, res) => {
@@ -154,9 +153,8 @@ describe("Unit tests for user management", () => {
                         res.body.should.be.a("object");
                         res.body.email.should.be.equal(user1.email);
 
-                        chai
-                            .request(server)
-                            .get("/user")
+                        chai.request(server)
+                            .get(apiPath + "/user")
                             .set("Authorization", "Bearer " + user1Token)
                             .send({ username: user1.username })
                             .end((err, res) => {
@@ -178,9 +176,8 @@ describe("Unit tests for user management", () => {
         };
 
         await new Promise((resolve, reject) => {
-            chai
-                .request(server)
-                .put("/auth/change-password")
+            chai.request(server)
+                .put(apiPath + "/auth/change-password")
                 .set("Authorization", "Bearer " + user1Token)
                 .send(user1)
                 .end((err, res) => {
@@ -192,9 +189,8 @@ describe("Unit tests for user management", () => {
         });
 
         const loginWithOldPassword = new Promise((resolve, reject) => {
-            chai
-                .request(server)
-                .post("/auth/login")
+            chai.request(server)
+                .post(apiPath + "/auth/login")
                 .send({ username: user1.username, password: user1.oldPassword })
                 .end((err, res) => {
                     if (err) return reject(err);
@@ -204,9 +200,8 @@ describe("Unit tests for user management", () => {
         });
 
         const loginWithOldToken = new Promise((resolve, reject) => {
-            chai
-                .request(server)
-                .put("/auth/change-password")
+            chai.request(server)
+                .put(apiPath + "/auth/change-password")
                 .set("Authorization", "Bearer " + user1Token)
                 .end((err, res) => {
                     if (err) return reject(err);
@@ -216,9 +211,8 @@ describe("Unit tests for user management", () => {
         });
 
         const loginWithNewPassword = new Promise((resolve, reject) => {
-            chai
-                .request(server)
-                .post("/auth/login")
+            chai.request(server)
+                .post(apiPath + "/auth/login")
                 .send({ username: user1.username, password: user1.newPassword })
                 .end((err, res) => {
                     if (err) return reject(err);
@@ -275,9 +269,8 @@ describe("Unit tests for profile management.", () => {
             birthdate: "1990-01-01",
         }
 
-        chai
-            .request(server)
-            .post("/auth/register")
+        chai.request(server)
+            .post(apiPath + "/auth/register")
             .send(user1)
             .end((err, res) => {
                 if (err) {
@@ -294,7 +287,7 @@ describe("Unit tests for profile management.", () => {
                 res.body.userInfo.adminStatus.should.be.equal(false);
 
                 chai.request(server)
-                    .post("/user/profile")
+                    .post(apiPath + "/user/profile")
                     .set("Authorization", "Bearer " + user1Token)
                     .send(user1Profile)
                     .end((err, res) => {
@@ -308,7 +301,7 @@ describe("Unit tests for profile management.", () => {
                         res.body.profileInfo.sex.should.be.equal("Other");
                         res.body.profileInfo.privacySetting.should.be.equal("public");
                         chai.request(server)
-                            .post("/user/profile")
+                            .post(apiPath + "/user/profile")
                             .set("Authorization", "Bearer " + user1Token)
                             .send(user1Profile)
                             .end((err, res) => {
@@ -339,7 +332,7 @@ describe("Unit tests for profile management.", () => {
         }
 
         chai.request(server)
-            .patch("/user/profile")
+            .patch(apiPath + "/user/profile")
             .set("Authorization", "Bearer " + user1Token)
             .send(newUser1Profile)
             .end((err, res) => {
@@ -353,7 +346,7 @@ describe("Unit tests for profile management.", () => {
                 res.body.profileInfo.sex.should.be.equal("Male");
                 res.body.profileInfo.privacySetting.should.be.equal("public");
                 chai.request(server)
-                    .get("/user/profile/search")
+                    .get(apiPath + "/user/profile/search")
                     .set("Authorization", "Bearer " + user1Token)
                     .send(profileQueryById)
                     .end((err, res) => {
@@ -367,7 +360,7 @@ describe("Unit tests for profile management.", () => {
                         res.body.profileInfo.sex.should.be.equal("Male");
                         res.body.profileInfo.privacySetting.should.be.equal("public");
                         chai.request(server)
-                            .get("/user/profile/search")
+                            .get(apiPath + "/user/profile/search")
                             .set("Authorization", "Bearer " + user1Token)
                             .send(profileQueryByUsername)
                             .end((err, res) => {
@@ -381,7 +374,7 @@ describe("Unit tests for profile management.", () => {
                                 res.body.profileInfo.sex.should.be.equal("Male");
                                 res.body.profileInfo.privacySetting.should.be.equal("public");
                                 chai.request(server)
-                                    .get("/user/profile")
+                                    .get(apiPath + "/user/profile")
                                     .set("Authorization", "Bearer " + user1Token)
                                     .end((err, res) => {
                                         if (err) {
@@ -407,7 +400,7 @@ describe("Unit tests for profile management.", () => {
             profilePictureUrl: "random.image.url"
         }
         chai.request(server)
-            .post("/user/profile/upload-image")
+            .post(apiPath + "/user/profile/upload-image")
             .set("Authorization", "Bearer " + user1Token)
             .send(pictureQuery)
             .end((err, res) => {
@@ -428,7 +421,7 @@ describe("Unit tests for profile management.", () => {
             privacySetting: "friends_only"
         }
         chai.request(server)
-            .patch("/user/profile/set-privacy")
+            .patch(apiPath + "/user/profile/set-privacy")
             .set("Authorization", "Bearer " + user1Token)
             .send(privacyQuery)
             .end((err, res) => {
@@ -449,7 +442,7 @@ describe("Unit tests for profile management.", () => {
         }
 
         chai.request(server)
-            .delete("/user/profile")
+            .delete(apiPath + "/user/profile")
             .set("Authorization", "Bearer " + user1Token)
             .send(deleteQuery)
             .end((err, res) => {
@@ -459,7 +452,7 @@ describe("Unit tests for profile management.", () => {
                 res.should.have.status(204);
 
                 chai.request(server)
-                    .get("/user/profile")
+                    .get(apiPath + "/user/profile")
                     .set("Authorization", "Bearer " + user1Token)
                     .end((err, res) => {
                         if (err) {

@@ -1,0 +1,88 @@
+version: "3.8"
+
+volumes:
+  gateway-service:
+  notification-service:
+
+services:
+
+  gateway-service:
+    build: 
+      context: gateway-service
+      dockerfile: Dockerfile
+    env_file:
+      - gateway-service/.env 
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    volumes:
+      - gateway-service:/app
+    networks:
+     - backend
+  
+  notification-service:  
+    build:
+      context: notification-service
+      dockerfile: Dockerfile
+    env_file:  
+      - notification-service/.env
+    environment:
+      - NODE_ENV=${NODE_ENV} 
+    volumes:
+      - notification-service:/app
+    depends_on:
+     - gateway-service
+    networks:
+     - backend
+  
+  db:
+    build:
+      context: user-service
+      dockerfile: Dockerfile.db  
+    env_file:
+      - user-service/.env
+    environment: 
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
+    depends_on:
+      - notification-service
+    networks:
+     - backend
+       
+  user-service:
+    build: 
+      context: user-service
+      dockerfile: Dockerfile
+    env_file:
+      - user-service/.env
+    environment:
+      DB_NAME: ${PG_DATABASE}
+      DB_USER: ${PG_USER}
+      DB_PASS: ${PG_PASSWORD} 
+      DB_HOST: db
+      DB_PORT: ${PG_PORT}
+    depends_on:
+     - gateway-service
+    networks:
+     - backend
+
+  user-service-test:
+    build:
+      context: user-service
+      dockerfile: Dockerfile.test
+    env_file:
+      - user-service/.env
+    environment:
+      DB_NAME: ${PG_DATABASE}
+      DB_USER: ${PG_USER}
+      DB_PASS: ${PG_PASSWORD} 
+      DB_HOST: db
+      DB_PORT: ${PG_PORT}
+    networks:
+     - backend
+    depends_on:
+      - db
+      - user-service
+  
+networks:
+  backend:
