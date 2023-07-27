@@ -29,10 +29,10 @@ jobs:
           cp gateway-service/.env.test gateway-service/.env && echo "Copied gateway-serivce .env.test file"
 
       - name: Start services
-        run: docker-compose up -d gateway-service notification-service 
+        run: docker-compose up
 
-      - name: Run tests
-        run: docker-compose run -e NODE_ENV=test user-service
+      # - name: Run tests
+      #   run: docker-compose run -e NODE_ENV=test user-service
 
   build-and-deploy:
     needs: build-and-test

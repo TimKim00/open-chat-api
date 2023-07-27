@@ -5,6 +5,8 @@ services:
     build:
       context: ./gateway-service
       dockerfile: Dockerfile
+    env_file:
+      - ./gateway-service/.env
     networks:
       - network1
     volumes:
@@ -16,6 +18,8 @@ services:
     build:
       context: ./notification-service
       dockerfile: Dockerfile
+    env_file:
+      - ./gateway-service/.env
     networks:
       - network1
     volumes:
@@ -32,7 +36,7 @@ services:
     networks:
       - network1
     env_file: 
-      - .env
+      - .user-service/.env
     environment:
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
@@ -44,6 +48,8 @@ services:
       dockerfile: Dockerfile
     networks:
       - network1
+    env_file:
+      - ./user-service/.env
     environment:
       DB_NAME: ${PG_DATABASE}
       DB_USER: ${PG_USER}
