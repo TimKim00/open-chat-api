@@ -46,8 +46,6 @@ services:
       POSTGRES_DB: ${PG_DATABASE}
     networks:
      - backend
-    ports:
-      - 5432:5432
        
   # user-service:
   #   build: 
