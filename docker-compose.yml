@@ -3,27 +3,27 @@ version: '3.8'
 services:
   gateway-service:
     build:
-      context: ./gateway-service
+      context: .gateway-service
       dockerfile: Dockerfile
     env_file:
-      - ./gateway-service/.env
+      - .gateway-service/.env
     networks:
       - network1
     volumes:
-      - ./gateway-service:/app
+      - .gateway-service:/app
     environment:
       - NODE_ENV=${NODE_ENV}
 
   notification-service:
     build:
-      context: ./notification-service
+      context: .notification-service
       dockerfile: Dockerfile
     env_file:
-      - ./gateway-service/.env
+      - .notification-service/.env
     networks:
       - network1
     volumes:
-      - ./notification-service:/app
+      - .notification-service:/app
     environment:
       - NODE_ENV=${NODE_ENV}
     depends_on:
@@ -31,7 +31,7 @@ services:
 
   db:
     build:
-      context: ./user-service
+      context: .user-service
       dockerfile: Dockerfile.db
     networks:
       - network1
@@ -44,12 +44,12 @@ services:
 
   user-service:
     build: 
-      context: ./user-service
+      context: .user-service
       dockerfile: Dockerfile
     networks:
       - network1
     env_file:
-      - ./user-service/.env
+      - .user-service/.env
     environment:
       DB_NAME: ${PG_DATABASE}
       DB_USER: ${PG_USER}
