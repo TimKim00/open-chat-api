@@ -30,6 +30,6 @@ module.exports = app;
 // Start the server.
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    const { address, port } = server.address();
+    const { address, port } = app.address();
     console.log(`User service listening at http://${address}:${port}`);
 });
