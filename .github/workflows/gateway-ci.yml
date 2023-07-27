@@ -29,7 +29,7 @@ jobs:
           cp gateway-service/.env.test gateway-service/.env && echo "Copied gateway-serivce .env.test file"
 
       - name: Build and Test
-        run: docker-compose up --build --abort-on-container-exit
+        run: docker-compose up
 
       # - name: Run tests
       #   run: docker-compose run -e NODE_ENV=test user-service
