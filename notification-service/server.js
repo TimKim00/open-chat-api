@@ -17,4 +17,8 @@ app.post('/send-notification', async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Notification Service is listening on port ${port}`));
+app.listen(port, () => {
+  const { address, port } = server.address();
+  console.log(`Notification service listening at http://${address}:${port}`);
+});
+
