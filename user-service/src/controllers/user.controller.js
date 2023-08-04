@@ -25,7 +25,7 @@ exports.registerUser = async (req, res) => {
 
 /** Logs in the user */
 exports.loginUser = async (req, res) => {
-  const {username, password} = req.body;
+  const { username, password } = req.body;
   try {
     const userInfo = await User.loginUser(username, password);
     if (!userInfo) {
@@ -67,18 +67,20 @@ exports.deleteUser = async (req, res) => {
 }
 
 /** Retreive the user's information. */
-exports.getUser = async (req, res) =>  {
+exports.getUser = async (req, res) => {
   if (!req.body) {
     return res.status(400).json({ msg: 'User not found.' });
   }
 
-  const {username, userId} = req.body;
+  const { username, userId } = req.body;
   try {
     let result = undefined;
     if (userId) {
       result = await User.findById(userId);
     } else if (username) {
       result = await User.findByUsername(username);
+    } else {
+      result = req.user;
     }
     if (!result) {
       return res.status(401).json({ msg: 'User not found.' });
@@ -92,7 +94,7 @@ exports.getUser = async (req, res) =>  {
 
 /** Changes the user's information */
 exports.updateUser = async (req, res) => {
-  const {username, email, adminStatus} = req.body;
+  const { username, email, adminStatus } = req.body;
   try {
     const result = await User.updateUser(username, email, adminStatus);
     if (!result) {
@@ -107,7 +109,7 @@ exports.updateUser = async (req, res) => {
 
 /** Changes the user's password */
 exports.changePassword = async (req, res) => {
-  const {username, oldPassword, newPassword} = req.body;
+  const { username, oldPassword, newPassword } = req.body;
   try {
     const result = await User.changePassword(username, newPassword, oldPassword);
     if (!result) {
@@ -120,4 +122,22 @@ exports.changePassword = async (req, res) => {
   }
 }
 
+/** RESETS THE USER DATABASE */
+exports.resetDatabase = async (req, res) => {
+  const { resetToken } = req.body;
+  try {
+    if (Utils.verifyResetToken(resetToken)) {
+      const result = await User.resetDatabase();
+      if (!result) {
+        return res.status(401).json({ msg: 'Reset Failed.' });
+      }
+      return res.status(201).json({ msg: 'Reset Successful.' });
+    } else {
+      return res.status(401).json({ msg: 'Unauthorized' });
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+}
 

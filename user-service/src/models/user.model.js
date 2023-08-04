@@ -108,6 +108,31 @@ const User = {
         const result = await pool.query(query, values);
         return result.rowCount > 0;
     },
+
+    /** Resets all database */
+    async resetDatabase() {
+        try {
+            /** Start transaction */
+            await pool.query('BEGIN');
+
+            /** Remove all components that are associated with the user that is being deleted. */
+            await pool.query('DELETE FROM user_profiles');
+            await pool.query('DELETE FROM users');
+            await pool.query('DELETE FROM friends');
+
+            /** Reset the user id sequence */
+            await pool.query('ALTER SEQUENCE users_user_id_seq RESTART WITH 1');
+
+            /** Commit the transaction */
+            await pool.query('COMMIT');
+            return true;
+        } catch (err) {
+            console.error(err);
+            // Rollback transaction if any queries failed
+            await pool.query('ROLLBACK');
+            return false;
+        }
+    }
 }
 
 async function encryptPassword(password) {

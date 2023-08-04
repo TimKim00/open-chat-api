@@ -57,6 +57,11 @@ const Utils = {
     async setUserProfile(profileInfo) {
         const result = await pool.query('UPDATE users SET profile_id = $1 WHERE user_id = $2', [profileInfo.profileId, profileInfo.userId]);
         return result.rowCount > 0 ? profileInfo : null;
+    },
+
+    verifyResetToken(token) {
+        const decoded = jwt.verify(token, process.env.RESET_SECRET);
+        return decoded.reset;
     }
 }
 
