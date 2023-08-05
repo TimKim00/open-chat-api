@@ -136,24 +136,23 @@ exports.deleteRoom = async (req, res) => {
 
 // user USER Leaves the room. 
 exports.leaveRoom = async (req, res) => {
-    const { roomName, roomId } = req.body;
     const userInfo = req.user;
+    const roomId = req.params.roomId;
     try {
         // Validate user credentials
-        const { error } = schema.userSchema.validate(userInfo);
-        if (error) {
-            return res.status(400).json({ error: 'Invalid input' });
-        }
+        // const { error } = schema.userSchema.validate(userInfo);
+        // if (error) {
+        //     return res.status(400).json({ error: 'Invalid input' });
+        // }
 
         // Identify the room. 
-        let room;
-        if (roomName) {
-            room = await Room.findOne({ name: roomName });
-        } else if (roomId) {
-            room = await Room.findAll({ name: roomName, roomId: roomId });
-        } else {
+        
+        if (!roomId) {
             return res.status(404).json({ error: 'Room not found' });
         }
+
+        const room = await Room.findOne({_id: roomId });
+        console.log(room);
 
         // remove the participant from the room. 
         const userIndex = room.participants.findIndex(p => p.userId === userInfo.userId);

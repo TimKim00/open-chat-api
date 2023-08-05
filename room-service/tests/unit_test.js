@@ -117,7 +117,7 @@ describe('Unit test for room management', function () {
             });
     });
 
-    it('should have a new user join the room', function (done) {
+    it('should have a new user join and leave the room', function (done) {
         let userInfo = {
             username: 'testUser2',
             password: 'testPassword',
@@ -154,8 +154,19 @@ describe('Unit test for room management', function () {
                         res.body.should.have.property("roomToken");
                         roomToken2 = res.body.roomToken;
                         // Do more tests using the room token
+                        
+                        chai.request(roomServer).
+                            put(`/${roomId}/leave`).
+                            set('Authorization', 'Bearer ' + userToken2).
+                            end(function (err, res) {
+                                if (err) {
+                                    return done(err);
+                                }
+                                res.should.have.status(200);
+                                res.body.should.be.a("object");
 
-                        done();
+                                done();
+                            });
                     });
             });
     });
