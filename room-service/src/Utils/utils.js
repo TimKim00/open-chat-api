@@ -7,20 +7,23 @@ const Utils = {
     /** Validates the user token by getting the user's information. */
     async validateUserToken(userToken) {
         try {
-            const response = await axios.get(`${process.env.USER_SERVER}/`, {
-                Authorization: `Bearer ${userToken}`
+            const response = await axios.get(`${process.env.USER_SERVER}/user/token`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`
+                }
             });
             return response.data;
         } catch (error) {
-            next(error);
+            throw new Error(error.message);
         }
     },
 
     generateRoomToken(roomId) {
         try {
-            return jwt.sign(roomId, process.env.ROOM_SECRET, {expiresIn: '1h'});
+            const payload = {roomId: roomId};
+            return jwt.sign(payload, process.env.ROOM_SECRET, {expiresIn: '1h'});
         } catch (error) {
-            next(error);
+            throw new Error(error.message);
         }
     }
 }

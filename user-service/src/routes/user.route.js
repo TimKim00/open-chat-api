@@ -7,6 +7,7 @@ const authenticator = require('../middlewares/auth.mw');
 const router = express.Router();
 
 router.get('/', authenticator, userController.getUser);
+router.get('/token', authenticator, userController.getUserFromToken);
 router.put('/', authenticator, userController.updateUser);
 router.delete('/', authenticator, userController.deleteUser);
 

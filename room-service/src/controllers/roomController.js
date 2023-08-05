@@ -1,6 +1,6 @@
 const Room = require('../models/Room');
-const schema = require('../Utils/validation');
-const Utils = require('../Utils/utils');
+const schema = require('../utils/validation');
+const Utils = require('../utils/utils');
 const redis = require('../config/redis');
 
 // Creates a room
@@ -23,9 +23,7 @@ exports.createRoom = async (req, res) => {
                 admin: userInfo.admin
             }]
         }).save();
-
         const roomToken = Utils.generateRoomToken(room._id);
-
         return res.status(200).json({ name: room.name, roomId: room._id, roomToken: roomToken });
     } catch (error) {
         console.error(error.message);

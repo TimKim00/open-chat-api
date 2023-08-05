@@ -92,6 +92,19 @@ exports.getUser = async (req, res) => {
   }
 }
 
+/** Retreive the user's information from the user token. */
+exports.getUserFromToken = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ msg: 'User not found.' });
+    }
+    return res.status(201).json(req.user);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+}
+
 /** Changes the user's information */
 exports.updateUser = async (req, res) => {
   const { username, email, adminStatus } = req.body;

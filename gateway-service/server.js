@@ -22,6 +22,14 @@ app.all("/api/chats/*", (req, res) => {
     });
 });
 
+// Room service
+app.all("/api/rooms/*", (req, res) => {
+    req.url = req.url.replace('/api/rooms', '');
+    proxy.web(req, res, {
+        target: `http://${process.env.ROOM_SERVER}:${process.env.ROOM_PORT}`,
+    });
+});
+
 // Notification service
 app.all("/api/notifications/*", (req, res) => {
     req.url = req.url.replace('/api/notifications', '');
