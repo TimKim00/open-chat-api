@@ -18,4 +18,7 @@ router.post('/:roomId/join', userAuthenticate, roomController.joinRoom);
 // Delete a room
 router.delete('/:roomId', userAuthenticate, roomController.deleteRoom);
 
+// Leave a room
+router.put('/:roomId/leave', userAuthenticate, roomController.leaveRoom);
+
 module.exports = router;

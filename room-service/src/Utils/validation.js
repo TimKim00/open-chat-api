@@ -9,9 +9,9 @@ exports.roomSchema = Joi.object({
 
 // validates user information input
 exports.userSchema = Joi.object({
-    username: Joi.string().required(),
     userId: Joi.number().required(),
-    adminStatus: Joi.boolean().default(false)
+    username: Joi.string().required(),
+    adminStatus: Joi.boolean().default(false),
 });
 
 // Validates room search filter input

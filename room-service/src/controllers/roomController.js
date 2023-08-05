@@ -1,7 +1,7 @@
 const Room = require('../models/Room');
 const schema = require('../utils/validation');
 const Utils = require('../utils/utils');
-const redis = require('../config/redis');
+const {redis, connected} = require('../config/redis');
 
 // Creates a room
 exports.createRoom = async (req, res) => {
@@ -37,17 +37,20 @@ exports.getRooms = (req, res) => {
 }
 
 // Get room information
-exports.getRoom = (req, res) => {
+exports.getRoom = async (req, res) => {
     const roomId = req.params.roomId;
+    // Validate object Id. 
+    const validObjectId = new RegExp("^[0-9a-fA-F]{24}$");
+
+    if (!validObjectId.test(roomId)) {
+        return res.status(404).json({ error: 'Room not found' });
+    }
     try {
-        Room.statics.findById(roomId, (err, room) => {
-            if (err) {
-                console.error(err.message);
-                return res.status(500).json({ error: 'Server error' });
-            }
-            if (!room) return res.status(404).json({ error: 'Room not found' });
-            return res.status(200).json({ name: room.name, roomId: room._id });
-        });
+        const room = await Room.findById(roomId);
+        if (!room) {
+            return res.status(404).json({ error: 'Room not found' });
+        } 
+        return res.status(200).json({ roomInfo: room, roomId: room._id });
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: 'Server error' });
@@ -56,17 +59,17 @@ exports.getRoom = (req, res) => {
 
 // Join a room
 exports.joinRoom = async (req, res) => {
-    const { roomName } = req.body;
-    const userInfo = req.uesr;
+    const roomId = req.params.roomId;
+    const userInfo = req.user;
     try {
-        // Extract the user's information to add to the list of participants.
-        const { error } = schema.userSchema.validate(userInfo);
-        if (error) {
-            return res.status(400).json({ error: 'Invalid input' });
-        }
+        //Extract the user's information to add to the list of participants.
+        // const { error } = schema.userSchema.validate(userInfo);
+        // if (error) {
+        //     return res.status(400).json({ error: 'Invalid input' });
+        // }
 
         // Retreive the room's information
-        const room = await Room.findOne({ name: roomName });
+        const room = await Room.findOne({ _id: roomId });
         if (!room) {
             return res.status(404).json({ error: 'Room not found' });
         }
@@ -85,7 +88,7 @@ exports.joinRoom = async (req, res) => {
         const roomToken = Utils.generateRoomToken(room._id);
 
         // Asynchronously send the message `user USERNAME has joined the room`
-        redis.publish(`room ${room._id}`, JSON.stringify({
+        await redis.publish(`room ${room._id}`, JSON.stringify({
             type: 'join',
             username: userInfo.username,
             userId: userInfo.userId,
@@ -101,14 +104,13 @@ exports.joinRoom = async (req, res) => {
 // Delete a room. The room should be deleted only if the user is an admin
 // or if there is participants in the room. 
 exports.deleteRoom = async (req, res) => {
-    const { roomId } = req.body;
+    const roomId = req.params.roomId;
     const userInfo = req.user;
     try {
-        const { error } = schema.userSchema.validate(userInfo);
-        if (error) {
-            return res.status(400).json({ error: 'Invalid input' });
-        }
-
+        // const { error } = schema.userSchema.validate(userInfo);
+        // if (error) {
+        //     return res.status(400).json({ error: 'Invalid input' });
+        // }
         if (userInfo.adminStatus) {
             // Delete the room
             if (roomId) {
@@ -121,7 +123,7 @@ exports.deleteRoom = async (req, res) => {
         }
 
         // Destroy the room's channel
-        const channel = `room ${room._id}`;
+        const channel = `room ${roomId}`;
         redis.del(channel);
 
         return res.status(204).json({ msg: 'Room deleted' });
